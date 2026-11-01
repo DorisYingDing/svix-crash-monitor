@@ -51,10 +51,13 @@ def _get_csv(params):
 
 def pull_fred_series(series_id, name, start_date=FRED_START):
     """Pull one FRED series, retrying server and network errors."""
-    params = {"id": series_id, "cosd": start_date}
+    # Fetch the series without graph display parameters: FRED can return 404
+    # for the cosd variant even when the plain series download is available.
+    params = {"id": series_id}
     transient = (FredServerError, requests.exceptions.ConnectionError, requests.exceptions.Timeout)
     text = source_status.retry(_get_csv, params, source="FRED", transient=transient)
     df = parse_fred_csv(text, name)
+    df = df.loc[df["date"] >= pd.Timestamp(start_date)].reset_index(drop=True)
     if df.empty:
         raise ValueError(f"FRED returned no observations for {series_id}")
     return df
