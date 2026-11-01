@@ -15,7 +15,7 @@ name: Backfill the SVIX Monitor's History
 on:
   workflow_dispatch:
     inputs:
-      start_date:2026-10-01
+      start_date:
         description: "Backfill from this date (YYYY-MM-DD)"
         required: true
         type: string
